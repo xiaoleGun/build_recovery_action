@@ -69,7 +69,7 @@ jobs:
         cd scripts
         sudo bash setup/android_build_env.sh
         sudo bash setup/install_android_sdk.sh || true
-        
+
     - name: Init Repo
       run: |
         mkdir ${GITHUB_WORKSPACE}/workspace
@@ -81,7 +81,7 @@ jobs:
     - name: Repo Sync
       run: |
         cd ${GITHUB_WORKSPACE}/workspace
-        repo sync -j$(nproc --all)
+        repo sync -j4
         ls -al
   
     - name: Clone Device Tree
@@ -94,7 +94,7 @@ jobs:
         cd ${GITHUB_WORKSPACE}/workspace
         source build/envsetup.sh
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng
-        mka recoveryimage -j$(nproc --all)
+        mka recoveryimage -j2
 
     - name: Generate info
       run: |
