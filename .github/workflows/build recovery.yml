@@ -92,7 +92,7 @@ jobs:
     - name: Building recovery
       run: |
         cd ${GITHUB_WORKSPACE}/workspace
-        source build/envsetup.sh
+        . build/envsetup.sh
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng
         mka recoveryimage -j2
 
