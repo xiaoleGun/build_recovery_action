@@ -31,6 +31,10 @@ on:
         description: 'makefile name'
         required: true
         default: 'twrp_wayne'
+      MAKEWHAT:
+        description: 'make what'
+        required: true
+        default: 'recovery'
         
 jobs:
   Build:
@@ -94,14 +98,14 @@ jobs:
         cd ${GITHUB_WORKSPACE}/workspace
         . build/envsetup.sh
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng
-        mka recoveryimage -j2
+        mka ${{ github.event.inputs.MAKEWHAT }}image -j2
 
     - name: Generate info
       run: |
         cd ${GITHUB_WORKSPACE}/workspace
         wget https://raw.githubusercontent.com/xiaoleGun/build_recovery_action/main/get_info.sh
         echo "BUILD_TIME=$(TZ=Asia/Shanghai date "+%Y%m%d%H%M")" >> $GITHUB_ENV
-        bash get_info.sh ${{ github.event.inputs.DEVICE_NAME }}
+        bash get_info.sh ${{ github.event.inputs.DEVICE_NAME }} ${{ github.event.inputs.MAKEWHAT }}
 
     - name: Upload to Release...
       uses: ncipollo/release-action@v1.8.0
