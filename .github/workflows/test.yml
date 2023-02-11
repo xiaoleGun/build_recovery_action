@@ -52,7 +52,7 @@ jobs:
         ulimit -S -n 2048
         hdiutil create ~/android.dmg -volname "android" -size 10g -fs "Case-sensitive HFS+"
         hdiutil mount ~/android.dmg
-        mkdir -p ${GITHUB_WORKSPACE}/workspace/android
+        mkdir -p ${GITHUB_WORKSPACE}/workspace
         ln -s /Volumes/android ${GITHUB_WORKSPACE}/workspace
 
     - name: Init Repo
