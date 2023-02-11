@@ -52,23 +52,23 @@ jobs:
         export HOME=${GITHUB_WORKSPACE}
         cd ${GITHUB_WORKSPACE}
         ulimit -S -n 2048
-        mkdir ~/bin
-        PATH=~/bin:$PATH
-        curl https://mirrors.tuna.tsinghua.edu.cn/git/git-repo > ~/bin/repo
-        chmod a+x ~/bin/repo
 
     - name: Init Repo
       run: |
         mkdir ${GITHUB_WORKSPACE}/workspace
         cd ${GITHUB_WORKSPACE}/workspace
+        mkdir ~/bin
+        export PATH=~/bin:$PATH
+        curl https://mirrors.tuna.tsinghua.edu.cn/git/git-repo > ~/bin/repo
+        chmod a+x ~/bin/repo
         git config --global user.name "Hikaru's Action-Build-Bot"
         git config --global user.email "Android@teio.tk"
-        repo init --depth=1 -u ${{ github.event.inputs.MANIFEST }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
+        ~/bin/repo init --depth=1 -u ${{ github.event.inputs.MANIFEST }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
         
     - name: Repo Sync
       run: |
         cd ${GITHUB_WORKSPACE}/workspace
-        repo sync -j4
+        ~/bin/repo sync -j4
         ls -al
   
     - name: Clone Device Tree
