@@ -6,7 +6,7 @@ on:
       MANIFEST:
         description: 'manifest'
         required: true
-        default: 'https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp'
+        default: 'https://github.com/xiaoleGun/platform_manifest_twrp_aosp'
       MANIFEST_BRANCH:
         description: 'branch'
         required: true
