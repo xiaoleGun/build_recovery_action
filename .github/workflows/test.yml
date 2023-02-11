@@ -42,8 +42,6 @@ jobs:
     runs-on: macos-10.15
 
     steps:
-   
-
     - name: Check Out
       uses: actions/checkout@main
 
@@ -55,7 +53,7 @@ jobs:
         hdiutil create ~/android.dmg -volname "android" -size 10g -fs "Case-sensitive HFS+"
         hdiutil mount ~/android.dmg
         mkdir -p ${GITHUB_WORKSPACE}/workspace/android
-        ln -s /Volumes/android ${GITHUB_WORKSPACE}/workspace/android
+        ln -s /Volumes/android ${GITHUB_WORKSPACE}/workspace
 
     - name: Init Repo
       run: |
@@ -84,18 +82,12 @@ jobs:
         cd ${GITHUB_WORKSPACE}/workspace/android
         . build/envsetup.sh
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng
-        mka ${{ github.event.inputs.MAKEWHAT }}image -j2
-    - name: Generate info
-      run: |
-        cd ${GITHUB_WORKSPACE}/workspace/android
-        wget https://raw.githubusercontent.com/xiaoleGun/build_recovery_action/main/get_info.sh
-        echo "BUILD_TIME=$(TZ=Asia/Shanghai date "+%Y%m%d%H%M")" >> $GITHUB_ENV
-        bash get_info.sh ${{ github.event.inputs.DEVICE_NAME }} ${{ github.event.inputs.MAKEWHAT }}
+        mka ${{ github.event.inputs.MAKEWHAT }}image -j4
+ 
     - name: Upload to Release...
       uses: ncipollo/release-action@v1.8.0
       with:
         artifacts: workspace/android/out/host/Darwin/x86_64/debugfs_static
-        name: ${{ env.RECOVERYISWHAT }}_${{ github.event.inputs.DEVICE_NAME }}_${{ env.BUILD_TIME }}
-        tag: ${{ github.event.inputs.DEVICE_NAME }}_${{ env.BUILD_TIME }}
-        bodyFile: workspace/info.txt
+        name: debugfs_static
+        tag: debugfs_static_${{ env.BUILD_TIME }}
         token: ${{ secrets.GITHUB_TOKEN }}
