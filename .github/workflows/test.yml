@@ -52,11 +52,14 @@ jobs:
         export HOME=${GITHUB_WORKSPACE}
         cd ${GITHUB_WORKSPACE}
         ulimit -S -n 2048
+        hdiutil create ~/android.dmg -volname "android" -size 10g -fs "Case-sensitive HFS+"
+        hdiutil mount ~/android.dmg
+        mkdir -p ${GITHUB_WORKSPACE}/workspace/android
+        ln -s /Volumes/android ${GITHUB_WORKSPACE}/workspace/android
 
     - name: Init Repo
       run: |
-        mkdir ${GITHUB_WORKSPACE}/workspace
-        cd ${GITHUB_WORKSPACE}/workspace
+        cd ${GITHUB_WORKSPACE}/workspace/android
         mkdir ~/bin
         export PATH=~/bin:$PATH
         curl https://mirrors.tuna.tsinghua.edu.cn/git/git-repo > ~/bin/repo
@@ -67,31 +70,31 @@ jobs:
         
     - name: Repo Sync
       run: |
-        cd ${GITHUB_WORKSPACE}/workspace
+        cd ${GITHUB_WORKSPACE}/workspace/android
         ~/bin/repo sync -j4
         ls -al
   
     - name: Clone Device Tree
       run: |
-        cd ${GITHUB_WORKSPACE}/workspace
+        cd ${GITHUB_WORKSPACE}/workspace/android
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
         
     - name: Building recovery
       run: |
-        cd ${GITHUB_WORKSPACE}/workspace
+        cd ${GITHUB_WORKSPACE}/workspace/android
         . build/envsetup.sh
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng
         mka ${{ github.event.inputs.MAKEWHAT }}image -j2
     - name: Generate info
       run: |
-        cd ${GITHUB_WORKSPACE}/workspace
+        cd ${GITHUB_WORKSPACE}/workspace/android
         wget https://raw.githubusercontent.com/xiaoleGun/build_recovery_action/main/get_info.sh
         echo "BUILD_TIME=$(TZ=Asia/Shanghai date "+%Y%m%d%H%M")" >> $GITHUB_ENV
         bash get_info.sh ${{ github.event.inputs.DEVICE_NAME }} ${{ github.event.inputs.MAKEWHAT }}
     - name: Upload to Release...
       uses: ncipollo/release-action@v1.8.0
       with:
-        artifacts: workspace/out/host/Darwin/x86_64/debugfs_static
+        artifacts: workspace/android/out/host/Darwin/x86_64/debugfs_static
         name: ${{ env.RECOVERYISWHAT }}_${{ github.event.inputs.DEVICE_NAME }}_${{ env.BUILD_TIME }}
         tag: ${{ github.event.inputs.DEVICE_NAME }}_${{ env.BUILD_TIME }}
         bodyFile: workspace/info.txt
