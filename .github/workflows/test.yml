@@ -52,6 +52,10 @@ jobs:
         export HOME=${GITHUB_WORKSPACE}
         cd ${GITHUB_WORKSPACE}
         ulimit -S -n 2048
+        mkdir ~/bin
+        PATH=~/bin:$PATH
+        curl https://mirrors.tuna.tsinghua.edu.cn/git/git-repo > ~/bin/repo
+        chmod a+x ~/bin/repo
 
     - name: Init Repo
       run: |
