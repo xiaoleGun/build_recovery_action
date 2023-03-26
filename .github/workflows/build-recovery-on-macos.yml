@@ -23,10 +23,6 @@ on:
         description: 'device path'
         required: true
         default: 'device/xiaomi/wayne'
-      DEVICE_NAME:
-        description: 'device codename'
-        required: true
-        default: 'wayne'
       MAKEFILE_NAME:
         description: 'makefile name'
         required: true
@@ -83,18 +79,8 @@ jobs:
         lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng
         mka ${{ github.event.inputs.MAKEWHAT }}image
 
-    - name: Generate info
-      run: |
-        cd ${GITHUB_WORKSPACE}/workspace/android
-        wget https://raw.githubusercontent.com/xiaoleGun/build_recovery_action/main/get_info.sh
-        echo "BUILD_TIME=$(TZ=Asia/Shanghai date "+%Y%m%d%H%M")" >> $GITHUB_ENV
-        bash get_info.sh ${{ github.event.inputs.DEVICE_NAME }} ${{ github.event.inputs.MAKEWHAT }}
-
-    - name: Upload to Release...
-      uses: ncipollo/release-action@v1.8.0
+    - name: Upload ${{ env.MAKEWHAT }} image
+      uses: actions/upload-artifact@v3
       with:
-        artifacts: workspace/android/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery.img
-        name: ${{ env.RECOVERYISWHAT }}_${{ github.event.inputs.DEVICE_NAME }}_${{ env.BUILD_TIME }}
-        tag: ${{ github.event.inputs.DEVICE_NAME }}_${{ env.BUILD_TIME }}
-        bodyFile: workspace/info.txt
-        token: ${{ secrets.GITHUB_TOKEN }}
+        name: ${{ env.MAKEWHAT }}-${{ github.event.inputs.DEVICE_NAME }}-${{ env.BUILD_TIME }}
+        path: workspace/android/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery.img
