@@ -1,36 +1,10 @@
 name: Build recovery on macos
 
 on:
+  watch:
+    types: [started]
+
   workflow_dispatch:
-     inputs:
-      MANIFEST:
-        description: 'manifest'
-        required: true
-        default: 'https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp'
-      MANIFEST_BRANCH:
-        description: 'branch'
-        required: true
-        default: 'twrp-12.1'
-      DEVICE_TREE:
-        description: 'device tree'
-        required: true
-        default: 'https://github.com/xiaoleGun/android_device_xiaomi_wayne-twrp'
-      DEVICE_TREE_BRANCH:
-        description: 'branch'
-        required: true
-        default: 'android-12.1'
-      DEVICE_PATH:
-        description: 'device path'
-        required: true
-        default: 'device/xiaomi/wayne'
-      MAKEFILE_NAME:
-        description: 'makefile name'
-        required: true
-        default: 'twrp_wayne'
-      MAKEWHAT:
-        description: 'make what'
-        required: true
-        default: 'recovery'
         
 jobs:
   Build:
@@ -38,8 +12,17 @@ jobs:
     runs-on: macos-10.15
 
     steps:
-    - name: Check Out
-      uses: actions/checkout@main
+    - uses: actions/checkout@v3
+    - name: Setup Configuration
+      run: |
+        echo "MANIFEST=$(cat config.env | grep "MANIFEST" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+        echo "MANIFEST_BRANCH=$(cat config.env | grep "MANIFEST_BRANCH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+        echo "DEVICE_TREE=$(cat config.env | grep "DEVICE_TREE" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+        echo "DEVICE_TREE_BRANCH=$(cat config.env | grep "DEVICE_TREE_BRANCH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+        echo "DEVICE_PATH=$(cat config.env | grep "DEVICE_PATH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+        echo "MAKEFILE_NAME=$(cat config.env | grep "MAKEFILE_NAME" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+        echo "MAKEWHAT=$(cat config.env | grep "MAKEWHAT" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+
 
     - name: Prepare Environment
       run: |
@@ -50,7 +33,7 @@ jobs:
         hdiutil mount ~/android.dmg
         mkdir -p ${GITHUB_WORKSPACE}/workspace
         ln -s /Volumes/android ${GITHUB_WORKSPACE}/workspace
-        echo "DEVICE_NAME=$(echo ${{ github.event.inputs.DEVICE_PATH }} | cut -d'/' -f3)" >> $GITHUB_ENV
+        echo "DEVICE_NAME=$(echo ${{ env.DEVICE_PATH }} | cut -d'/' -f3)" >> $GITHUB_ENV
 
     - name: Init Repo
       run: |
@@ -61,7 +44,7 @@ jobs:
         chmod a+x ~/bin/repo
         git config --global user.name "Hikaru's Action-Build-Bot"
         git config --global user.email "Android@teio.tk"
-        ~/bin/repo init --depth=1 -u ${{ github.event.inputs.MANIFEST }} -b ${{ github.event.inputs.MANIFEST_BRANCH }}
+        ~/bin/repo init --depth=1 -u ${{ env.MANIFEST }} -b ${{ env.MANIFEST_BRANCH }}
         
     - name: Repo Sync
       run: |
@@ -71,14 +54,15 @@ jobs:
     - name: Clone Device Tree
       run: |
         cd ${GITHUB_WORKSPACE}/workspace/android
-        git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
+        git clone ${{ env.DEVICE_TREE }} -b ${{ env.DEVICE_TREE_BRANCH }} ./${{ env.DEVICE_PATH }}
         
     - name: Building recovery
       run: |
         cd ${GITHUB_WORKSPACE}/workspace/android
         . build/envsetup.sh
-        lunch ${{ github.event.inputs.MAKEFILE_NAME }}-eng
-        mka ${{ github.event.inputs.MAKEWHAT }}image
+        lunch ${{ env.MAKEFILE_NAME }}-eng
+        echo "BUILD_TIME=$(TZ=Asia/Shanghai date "+%Y%m%d%H%M")" >> $GITHUB_ENV
+        mka ${{ env.MAKEWHAT }}image
 
     - name: Upload ${{ env.MAKEWHAT }} image
       uses: actions/upload-artifact@v3
