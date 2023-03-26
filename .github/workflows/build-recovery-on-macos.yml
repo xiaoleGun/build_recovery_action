@@ -50,6 +50,7 @@ jobs:
         hdiutil mount ~/android.dmg
         mkdir -p ${GITHUB_WORKSPACE}/workspace
         ln -s /Volumes/android ${GITHUB_WORKSPACE}/workspace
+        echo "DEVICE_NAME=$(echo ${{ github.event.inputs.DEVICE_PATH }} | cut -d'/' -f3)" >> $GITHUB_ENV
 
     - name: Init Repo
       run: |
@@ -82,5 +83,5 @@ jobs:
     - name: Upload ${{ env.MAKEWHAT }} image
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ env.MAKEWHAT }}-${{ github.event.inputs.DEVICE_NAME }}-${{ env.BUILD_TIME }}
-        path: workspace/android/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/recovery.img
+        name: ${{ env.MAKEWHAT }}-${{ env.DEVICE_NAME }}-${{ env.BUILD_TIME }}
+        path: workspace/android/out/target/product/${{ env.DEVICE_NAME }}/${{ env.MAKEWHAT }}.img
