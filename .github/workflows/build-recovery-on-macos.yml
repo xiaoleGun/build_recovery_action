@@ -72,7 +72,7 @@ jobs:
         cd ${GITHUB_WORKSPACE}/workspace/android
         git clone ${{ github.event.inputs.DEVICE_TREE }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
         
-    - name: Building debugfs_static-host
+    - name: Building recovery
       run: |
         cd ${GITHUB_WORKSPACE}/workspace/android
         . build/envsetup.sh
