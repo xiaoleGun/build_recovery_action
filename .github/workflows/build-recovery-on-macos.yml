@@ -45,7 +45,8 @@ jobs:
         git config --global user.name "Hikaru's Action-Build-Bot"
         git config --global user.email "Android@teio.tk"
         ~/bin/repo init --depth=1 -u ${{ env.MANIFEST }} -b ${{ env.MANIFEST_BRANCH }}
-        
+        sed -i "" '/darwin-x86/d' .repo/manifests/remove-minimal.xml
+
     - name: Repo Sync
       run: |
         cd ${GITHUB_WORKSPACE}/workspace/android
