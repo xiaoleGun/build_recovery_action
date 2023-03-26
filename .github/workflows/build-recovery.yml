@@ -86,7 +86,6 @@ jobs:
       run: |
         cd ${GITHUB_WORKSPACE}/workspace
         repo sync -j4
-        ls -al
   
     - name: Clone Device Tree
       run: |
